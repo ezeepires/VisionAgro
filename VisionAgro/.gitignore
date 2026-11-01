@@ -1,0 +1,10 @@
+# Ignorar o ambiente virtual
+venv/
+__pycache__/
+
+# IGNORAR OS SEGREDOS (MUITO IMPORTANTE)
+.env
+
+# Ignorar banco de dados local e arquivos temporários de imagem
+*.db
+temp_*.jpg

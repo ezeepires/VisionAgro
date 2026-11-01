@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-zinc-950">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionAgro — Painel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader {
+            border: 2px solid rgba(255,255,255,0.1);
+            border-left-color: #10b981;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body class="min-h-full flex flex-col font-sans antialiased bg-zinc-950 text-zinc-100 selection:bg-zinc-800">
+
+    <nav class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-8">
+                    <a href="/dashboard" class="text-lg font-bold tracking-tight">Vision<span class="text-emerald-500">Agro</span></a>
+                </div>
+                <div class="flex items-center gap-6">
+                    <span class="text-xs text-zinc-400 font-medium">{{ dados.usuario }}</span>
+                    <a href="/auth/sair" class="text-xs font-semibold text-zinc-400 hover:text-zinc-100 transition border border-zinc-800 rounded-lg px-3 py-1.5 bg-zinc-900/50">Sair</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8 animate-[fadeInUp_0.4s_ease-out]">
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-900 pb-6">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight text-zinc-100">Controle de Lavouras</h1>
+                <p class="text-sm text-zinc-500 mt-1">Sincronização offline e análise por Inteligência Artificial.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div class="bg-zinc-900/30 border border-zinc-900 p-6 rounded-2xl hover:border-zinc-800/80 transition duration-300">
+                <p class="text-xs font-medium tracking-wider text-zinc-500 uppercase">Total de Imagens</p>
+                <p class="mt-2 text-3xl font-bold text-zinc-100 tracking-tight">{{ dados.total }}</p>
+            </div>
+
+            <div class="bg-zinc-900/30 border border-zinc-900 p-6 rounded-2xl hover:border-zinc-800/80 transition duration-300">
+                <p class="text-xs font-medium tracking-wider text-emerald-500 uppercase">Imagens Analisadas</p>
+                <p class="mt-2 text-3xl font-bold text-emerald-400 tracking-tight">{{ dados.analisadas }}</p>
+            </div>
+
+            <div class="bg-zinc-900/30 border border-zinc-900 p-6 rounded-2xl hover:border-zinc-800/80 transition duration-300">
+                <p class="text-xs font-medium tracking-wider text-orange-500 uppercase">Pendentes de IA</p>
+                <p class="mt-2 text-3xl font-bold text-orange-400 tracking-tight">{{ dados.pendentes }}</p>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <h2 class="text-lg font-semibold text-zinc-200">Amostras Sincronizadas</h2>
+            
+            {% if amostras %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for amostra in amostras %}
+                    <div class="bg-zinc-900/30 border border-zinc-900 rounded-2xl overflow-hidden hover:border-zinc-800/80 transition duration-300 flex flex-col relative" id="card-{{ amostra.id }}">
+                        
+                        <!-- Overlay de loading para a IA -->
+                        <div id="loading-{{ amostra.id }}" class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center hidden">
+                            <div class="loader mb-3"></div>
+                            <span class="text-emerald-400 text-xs font-semibold uppercase tracking-wider">Analisando...</span>
+                        </div>
+
+                        <div class="h-48 bg-zinc-950 relative">
+                            <img src="{{ amostra.imagem_url }}" alt="Amostra" class="w-full h-full object-cover">
+                            {% if amostra.status == 'pendente' %}
+                                <span class="absolute top-3 right-3 bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">Pendente</span>
+                            {% elif amostra.status == 'erro_ia' %}
+                                <span class="absolute top-3 right-3 bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">Erro IA</span>
+                            {% else %}
+                                <span class="absolute top-3 right-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">Analisado</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-zinc-100 text-lg">{{ amostra.fileira }}</h3>
+                                    <p class="text-xs text-zinc-500 font-medium">Planta/Pé: <span class="text-zinc-300">{{ amostra.pe }}</span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 space-y-3 bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/50 mb-4 text-sm" id="resultado-{{ amostra.id }}">
+                                {% if amostra.status == 'analisado' %}
+                                    <div>
+                                        <span class="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Diagnóstico</span>
+                                        <span class="font-medium text-zinc-200">{{ amostra.doencas }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Afetação:</span>
+                                        <span class="font-bold {% if amostra.percentual_doencas > 20 %}text-red-400{% else %}text-emerald-400{% endif %}">{{ amostra.percentual_doencas }}%</span>
+                                    </div>
+                                    {% if amostra.informacoes_adicionais %}
+                                        <div class="pt-2 border-t border-zinc-800/50">
+                                            <span class="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Nota da IA</span>
+                                            <p class="text-xs text-zinc-400 leading-relaxed">{{ amostra.informacoes_adicionais }}</p>
+                                        </div>
+                                    {% endif %}
+                                {% elif amostra.status == 'pendente' or amostra.status == 'erro_ia' %}
+                                    <div class="flex flex-col items-center justify-center h-full py-2 text-center">
+                                        <span class="text-zinc-500 text-xs mb-2">Análise pendente</span>
+                                        <button onclick="analisarIA('{{ amostra.id }}')" class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold uppercase tracking-wider transition">Escanear com IA</button>
+                                    </div>
+                                    {% if amostra.status == 'erro_ia' %}
+                                        <span class="text-red-400 text-[10px] mt-2 block">{{ amostra.informacoes_adicionais }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-[10px] text-zinc-600 text-right mt-auto">Capturado em: {{ amostra.created_at[:10] }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="border border-dashed border-zinc-800 rounded-2xl h-64 flex flex-col items-center justify-center p-6 text-center">
+                    <span class="text-zinc-600 text-sm font-medium">Nenhuma amostra encontrada</span>
+                    <p class="text-xs text-zinc-700 mt-1 max-w-sm">Execute o script no Raspberry Pi offline para coletar as imagens e espere que ele sincronize com a internet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="text-center py-6 border-t border-zinc-900 text-[10px] text-zinc-600 uppercase tracking-widest font-medium">
+        VisionAgro — Painel de Inteligência Artificial
+    </footer>
+
+    <script>
+        async function analisarIA(amostraId) {
+            const loader = document.getElementById(`loading-${amostraId}`);
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`/api/v1/analisar/${amostraId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if(response.ok && data.status === 'sucesso') {
+                    // Recarregar a página para mostrar os resultados novos
+                    window.location.reload();
+                } else {
+                    alert('Erro ao analisar: ' + (data.detail || 'Erro desconhecido'));
+                    loader.classList.add('hidden');
+                }
+            } catch (err) {
+                alert('Erro de rede ao conectar com a API.');
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

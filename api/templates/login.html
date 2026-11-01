@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-zinc-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionAgro — Acesso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full flex flex-col justify-center px-6 py-12 lg:px-8 font-sans antialiased selection:bg-zinc-800">
+    
+    <div class="sm:mx-auto sm:w-full sm:max-w-md animate-[fadeIn_0.4s_ease-out]">
+        <div class="flex justify-center text-xl font-bold tracking-tight text-zinc-100">
+            Vision<span class="text-emerald-500">Agro</span>
+        </div>
+        <h2 class="mt-6 text-center text-2xl font-semibold tracking-tight text-zinc-200">Acesse sua conta</h2>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-[fadeInUp_0.5s_ease-out]">
+        <div class="bg-zinc-900/50 border border-zinc-800/80 px-6 py-8 shadow-2xl rounded-2xl sm:px-10 backdrop-blur-md">
+            
+            {% if erro %}
+            <div class="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 font-medium">
+                {{ erro }}
+            </div>
+            {% endif %}
+
+            <form class="space-y-6" action="/auth/login" method="POST">
+                <div>
+                    <label for="email" class="block text-xs font-medium uppercase tracking-wider text-zinc-400">Endereço de e-mail</label>
+                    <div class="mt-2">
+                        <input id="email" name="email" type="email" required autocomplete="email" class="block w-full rounded-xl bg-zinc-950 border border-zinc-800 px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-0 transition text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="senha" class="block text-xs font-medium uppercase tracking-wider text-zinc-400">Senha</label>
+                    <div class="mt-2">
+                        <input id="senha" name="senha" type="password" required autocomplete="current-password" class="block w-full rounded-xl bg-zinc-950 border border-zinc-800 px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-0 transition text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="flex w-full justify-center rounded-xl bg-zinc-100 px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 focus:outline-none transition active:scale-[0.98]">
+                        Entrar no painel
+                    </button>
+                </div>
+            </form>
+
+            <p class="mt-6 text-center text-xs text-zinc-500">
+                Novo na plataforma? 
+                <a href="/cadastro" class="font-medium text-zinc-300 hover:text-zinc-100 transition underline underline-offset-4">Crie um acesso</a>
+            </p>
+        </div>
+    </div>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</body>
+</html>

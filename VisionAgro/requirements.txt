@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+Jinja2==3.0.3
+python-multipart
+Pillow
+google-genai
+psycopg2-binary
+bcrypt
+PyJWT
+requests
